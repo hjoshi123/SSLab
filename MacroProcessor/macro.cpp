@@ -9,54 +9,54 @@ using namespace std;
 int main() {
     string label,opcode,operand,newlabel,newoperand,newopcode,macroname,ex;
     int i,lines;
-    ifstream f1("Macro_input.txt");
-    ofstream f2("Macro_output.txt");
-    fstream f3("Macro_deftab.txt");
+    ifstream input("Macro_input.txt");
+    ofstream output("Macro_output.txt");
+    fstream deftab("Macro_deftab.txt");
 
-    f1>>label>>opcode>>operand;
+    input>>label>>opcode>>operand;
     while(opcode != "END")
     {
         if(opcode == "MACRO") {
             macroname = label;
-            f1>>label>>opcode>>operand;
+            input>>label>>opcode>>operand;
             lines=0;
             while(opcode != "MEND") {
-                f3<<label<<" "<<opcode<<" "<<operand<<endl;
-                f1>>label>>opcode>>operand;
+                deftab<<label<<" "<<opcode<<" "<<operand<<endl;
+                input>>label>>opcode>>operand;
                 lines++;
             }
         }
         else if(opcode == macroname) {
-            fstream f4("Arg_tab.txt");
+            fstream argtab("Arg_tab.txt");
             if(label != "-")
-            f2<<label;
+            output<<label;
             int n = operand.length();
             char arr[n+1];
             strcpy(arr, operand.c_str());
             char * ar = strtok(arr,",");
             while (ar != NULL) {
-                f4<<ar<<endl;
+                argtab<<ar<<endl;
                 ar = strtok(NULL, ",");
             }
-            f4.seekg(0,ios::beg);
-            f3.seekg(0,ios::beg);
-            f4>>ex;
-            f3>>newlabel>>newopcode>>newoperand;
+            argtab.seekg(0,ios::beg);
+            deftab.seekg(0,ios::beg);
+            argtab>>ex;
+            deftab>>newlabel>>newopcode>>newoperand;
             for(i=0;i<lines;i++) {
                 if(newoperand[0]=='&') {
-                    f2<<newlabel<<" "<<newopcode<<" "<<ex<<endl;
-                    f4>>ex;
-                    f3>>newlabel>>newopcode>>newoperand;
+                    output<<newlabel<<" "<<newopcode<<" "<<ex<<endl;
+                    argtab>>ex;
+                    deftab>>newlabel>>newopcode>>newoperand;
                 }
                 else
-                    f2<<newlabel<<" "<<newopcode<<" "<<newoperand<<endl;
-                f3>>newlabel>>newopcode>>newoperand;
+                    output<<newlabel<<" "<<newopcode<<" "<<newoperand<<endl;
+                deftab>>newlabel>>newopcode>>newoperand;
             }
         }
         else
-        f2<<label<<" "<<opcode<<" "<<operand<<endl;
-        f1>>label>>opcode>>operand;
+        output<<label<<" "<<opcode<<" "<<operand<<endl;
+        input>>label>>opcode>>operand;
     }
-    f2<<label<<" "<<opcode<<" "<<operand<<endl;
+    output<<label<<" "<<opcode<<" "<<operand<<endl;
     return 0;
 }
