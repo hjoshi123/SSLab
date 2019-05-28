@@ -1,56 +1,62 @@
 #include<iostream>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include<fstream>
-#include<string>
-#include<iomanip>
+
 using namespace std;
 
-int main(){
-    ifstream input("input.txt");
-    ofstream out("output.txt");
-    ifstream sym("symtab.txt");
-    ifstream optab("optab.txt");
-    string address, label, opcode, operand, code, value;
-    int addr;
-    input >> label >> opcode >> operand;
-    out << label << " " << opcode << " " << operand << endl;
-    input >> address >> label >> opcode >> operand;
-    while(opcode!="END"){
-        out << address << " " << label << " " << opcode << " " << operand << " ";
-        if(opcode!="RESB" && opcode!="RESW" && opcode!="BYTE" && opcode!="WORD"){
-            optab.clear();
-            optab.seekg(0, ios::beg);
-            optab >> code >> value;
-            while(code != "END"){
-                if(code == opcode){
-                    out<< value;
-                    break;
-                }
-                optab >> code >> value;
-            }
+int main() {
+    string label,opcode,operand,newlabel,newoperand,newopcode,macroname,ex;
+    int i,lines;
+    ifstream f1("Macro_input.txt");
+    ofstream f2("Macro_output.txt");
+    fstream f3("Macro_deftab.txt");
 
-            sym.clear();
-            sym.seekg(0, ios::beg);
-            sym >> code >> value;
-            while(code != "END"){
-                if(code == operand){
-                    out << value;
-                    break;
+    f1>>label>>opcode>>operand;
+    while(opcode != "END")
+    {
+        if(opcode == "MACRO") {
+            macroname = label;
+            f1>>label>>opcode>>operand;
+            lines=0;
+            while(opcode != "MEND") {
+                f3<<label<<" "<<opcode<<" "<<operand<<endl;
+                f1>>label>>opcode>>operand;
+                lines++;
+            }
+        }
+        else if(opcode == macroname) {
+            fstream f4("Arg_tab.txt");
+            if(label != "-")
+            f2<<label;
+            int n = operand.length();
+            char arr[n+1];
+            strcpy(arr, operand.c_str());
+            char * ar = strtok(arr,",");
+            while (ar != NULL) {
+                f4<<ar<<endl;
+                ar = strtok(NULL, ",");
+            }
+            f4.seekg(0,ios::beg);
+            f3.seekg(0,ios::beg);
+            f4>>ex;
+            f3>>newlabel>>newopcode>>newoperand;
+            for(i=0;i<lines;i++) {
+                if(newoperand[0]=='&') {
+                    f2<<newlabel<<" "<<newopcode<<" "<<ex<<endl;
+                    f4>>ex;
+                    f3>>newlabel>>newopcode>>newoperand;
                 }
-                sym >> code >> value;
+                else
+                    f2<<newlabel<<" "<<newopcode<<" "<<newoperand<<endl;
+                f3>>newlabel>>newopcode>>newoperand;
             }
         }
-        if(opcode=="BYTE"){
-            for(int i=2; i<operand.length()-1; i++){
-                out << hex << (int)operand[i];
-            }
-        }
-
-        if(opcode=="WORD"){
-            int a = stoi(operand, nullptr, 16);
-            out << setfill('0') << setw(6) <<a;
-        }
-        out<<endl;
-        input >> address >> label >> opcode >> operand;
+        else
+        f2<<label<<" "<<opcode<<" "<<operand<<endl;
+        f1>>label>>opcode>>operand;
     }
+    f2<<label<<" "<<opcode<<" "<<operand<<endl;
     return 0;
 }
