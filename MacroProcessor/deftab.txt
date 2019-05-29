@@ -1,0 +1,3 @@
+- LDA &A
+- ADD &B
+- STA &C

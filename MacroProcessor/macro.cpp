@@ -9,9 +9,9 @@ using namespace std;
 int main() {
     string label,opcode,operand,newlabel,newoperand,newopcode,macroname,ex;
     int i,lines;
-    ifstream input("Macro_input.txt");
-    ofstream output("Macro_output.txt");
-    fstream deftab("Macro_deftab.txt");
+    ifstream input("input.txt");
+    ofstream output("output.txt");
+    fstream deftab("deftab.txt");
 
     input>>label>>opcode>>operand;
     while(opcode != "END")
@@ -27,7 +27,7 @@ int main() {
             }
         }
         else if(opcode == macroname) {
-            fstream argtab("Arg_tab.txt");
+            fstream argtab("argtab.txt");
             if(label != "-")
             output<<label;
             int n = operand.length();
